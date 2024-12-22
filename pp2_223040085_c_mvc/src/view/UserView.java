@@ -9,6 +9,7 @@ public class UserView extends JFrame {
     private final JTextField txtEmail = new JTextField(20);
     private final JButton btnAdd = new JButton("Add User");
     private final JButton btnRefresh = new JButton("Refresh");
+    private final JButton btnExportPdf = new JButton("Export to PDF");
     private final JList<String> userList = new JList<>();
     private final DefaultListModel<String> listModel = new DefaultListModel<>();
 
@@ -27,6 +28,7 @@ public class UserView extends JFrame {
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(btnAdd);
         buttonPanel.add(btnRefresh);
+        buttonPanel.add(btnExportPdf);
         panel.add(buttonPanel);
 
         // Setup JList with DefaultListModel
@@ -60,5 +62,9 @@ public class UserView extends JFrame {
 
     public void addRefreshListener(ActionListener listener) {
         btnRefresh.addActionListener(listener);
+    }
+
+    public void addExportPdfListener(ActionListener listener) {
+        btnExportPdf.addActionListener(listener);
     }
 }

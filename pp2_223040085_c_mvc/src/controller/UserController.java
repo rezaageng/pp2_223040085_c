@@ -1,9 +1,8 @@
 package controller;
 
-import model.MyBatisUtil;
 import model.User;
 import model.UserMapper;
-import org.apache.ibatis.session.SqlSession;
+import view.UserPdf;
 import view.UserView;
 
 import javax.swing.*;
@@ -14,13 +13,17 @@ import java.util.List;
 public class UserController {
     private UserView view;
     private UserMapper mapper;
+    private UserPdf pdf;
 
-    public UserController(UserView view, UserMapper mapper) {
+    public UserController(UserView view, UserMapper mapper, UserPdf pdf) {
         this.view = view;
         this.mapper = mapper;
+        this.pdf = pdf;
 
         this.view.addAddUserListener(new AddUserListener());
         this.view.addRefreshListener(new RefreshListener());
+        this.view.addExportPdfListener(new ExportPdfListener());
+
     }
 
     class AddUserListener implements ActionListener {
@@ -33,30 +36,8 @@ public class UserController {
                 User user = new User();
                 user.setName(name);
                 user.setEmail(email);
-
-                // Membuka sesi MyBatis untuk operasi database
-                SqlSession session = MyBatisUtil.getSqlSession();
-                try {
-                    // Mendapatkan mapper dari sesi
-                    UserMapper mapper = session.getMapper(UserMapper.class);
-
-                    // Menyisipkan data ke dalam database
-                    mapper.insertUser(user);
-
-                    // Melakukan commit transaksi untuk memastikan data disimpan
-                    session.commit();
-
-                    // Menampilkan pesan sukses
-                    JOptionPane.showMessageDialog(view, "User added successfully!");
-                } catch (Exception ex) {
-                    // Jika terjadi kesalahan, rollback transaksi
-                    session.rollback();
-                    System.out.println(ex.getMessage());
-                    JOptionPane.showMessageDialog(view, "Error while adding user!");
-                } finally {
-                    // Menutup sesi setelah operasi selesai
-                    session.close();
-                }
+                mapper.insertUser(user);
+                JOptionPane.showMessageDialog(view, "User added successfully!");
             } else {
                 JOptionPane.showMessageDialog(view, "Please fill in all fields.");
             }
@@ -74,4 +55,19 @@ public class UserController {
             view.setUserList(userArray);
         }
     }
+
+
+    class ExportPdfListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (pdf != null) {  // Pastikan objek pdf tidak null
+                List<User> users = mapper.getAllUsers();
+                pdf.exportPdf(users);
+                JOptionPane.showMessageDialog(view, "PDF exported successfully!");
+            } else {
+                JOptionPane.showMessageDialog(view, "PDF export failed. PDF object is null.");
+            }
+        }
+    }
+
 }
