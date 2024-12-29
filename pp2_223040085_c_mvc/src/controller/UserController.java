@@ -47,12 +47,42 @@ public class UserController {
     class RefreshListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            List<User> users = mapper.getAllUsers();
-            String[] userArray = users.stream()
-                    .map(u -> u.getName() + " (" + u.getEmail() + ")")
-                    .toArray(String[]::new);
+            view.getProgressBar().setIndeterminate(false);
+            view.getProgressBar().setValue(0);
+            new SwingWorker<List<User>, Integer>() {
+                @Override
+                protected List<User> doInBackground() throws Exception {
+                    List<User> users = mapper.getAllUsers();
+                    int totalUsers = users.size();
+                    for (int i = 0; i < totalUsers; i++) {
+                        int progress = (int) ((i + 1) / (double) totalUsers * 100);
+                        publish(progress);
+                    }
+                    return users;
+                }
 
-            view.setUserList(userArray);
+                @Override
+                protected void process(List<Integer> chunks) {
+                    int progress = chunks.get(chunks.size() - 1);
+                    view.getProgressBar().setValue(progress);
+                }
+
+                @Override
+                protected void done() {
+                    try {
+                        List<User> users = get();
+                        String[] userArray = users.stream()
+                                .map(u -> u.getName() + " (" + u.getEmail() + ")")
+                                .toArray(String[]::new);
+                        view.setUserList(userArray);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(view, "Failed to refresh user list.");
+                    } finally {
+                        view.getProgressBar().setValue(100);
+                    }
+                }
+            }.execute();
         }
     }
 

@@ -12,14 +12,15 @@ public class UserView extends JFrame {
     private final JButton btnExportPdf = new JButton("Export to PDF");
     private final JList<String> userList = new JList<>();
     private final DefaultListModel<String> listModel = new DefaultListModel<>();
+    private final JProgressBar progressBar = new JProgressBar();
 
 
     public UserView() {
         setTitle("User Management");
-        setSize(400, 300);
+        setSize(400, 500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JPanel panel = new JPanel(new GridLayout(5, 1));
+        JPanel panel = new JPanel(new GridLayout(6, 1));
         panel.add(new JLabel("Name:"));
         panel.add(txtName);
         panel.add(new JLabel("Email:"));
@@ -30,6 +31,8 @@ public class UserView extends JFrame {
         buttonPanel.add(btnRefresh);
         buttonPanel.add(btnExportPdf);
         panel.add(buttonPanel);
+
+        panel.add(progressBar);
 
         // Setup JList with DefaultListModel
         userList.setModel(listModel);
@@ -46,6 +49,10 @@ public class UserView extends JFrame {
 
     public String getEmailInput() {
         return txtEmail.getText();
+    }
+
+    public JProgressBar getProgressBar() {
+        return progressBar;
     }
 
     // Method to update the JList with the users array
