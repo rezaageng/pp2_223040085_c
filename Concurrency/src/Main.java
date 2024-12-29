@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
@@ -21,14 +22,31 @@ public class Main {
             frame.add(startButton, BorderLayout.SOUTH);
 
             startButton.addActionListener(e -> {
-                for (int i = 0; i <= 60; i++) {
-                    progressBar.setValue(i);
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException ex) {
-                        System.out.println(ex.getMessage());
+                startButton.setEnabled(false);
+                statusLabel.setText("Heavy operation in progress...");
+
+                SwingWorker<Void, Integer> worker = new SwingWorker<Void, Integer>() {
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        for (int i = 0; i <= 100; i++) {
+                            Thread.sleep(50);
+                            publish(i);
+                        }
+                        return null;
                     }
-                }
+
+                    @Override
+                    protected void process(List<Integer> chunks) {
+                        progressBar.setValue(chunks.get(chunks.size() - 1));
+                    }
+
+                    @Override
+                    protected void done() {
+                        startButton.setEnabled(true);
+                        statusLabel.setText("Heavy operation completed");
+                    }
+                };
+                worker.execute();
             });
 
             frame.setVisible(true);
